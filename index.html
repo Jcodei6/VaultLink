@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkVault - Glassmorphism Link Manager</title>
+    
+    <!-- PWA & App Icons (Violet Theme) -->
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Embedded SVG Logo for Favicon and App Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
+    
+    <!-- Embedded Web App Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22LinkVault%22%2C%22short_name%22%3A%22LinkVault%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a1625%22%2C%22theme_color%22%3A%22%238b5cf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%253E%253Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27112%27%20fill%3D%27%25238b5cf6%27%2F%253E%253Cpath%20d%3D%27M256%20160c-53%200-96%2043-96%2096s43%2096%2096%2096%2096-43%2096-96-43-96-96-96zm0%20160c-35.3%200-64-28.7-64-64s28.7-64%2064-64%2064%2028.7%2064%2064-28.7%2064-64%2064z%27%20fill%3D%27%2523f5f3ff%27%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
+    <!-- Fonts, Icons, React, and Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            /* Avoid pure black/white - Light Mode Defaults */
+            --bg-main: #f5f3ff; /* Very light violet */
+            --bg-glass: rgba(237, 233, 254, 0.6);
+            --border-glass: rgba(139, 92, 246, 0.15);
+            --text-main: #2e2a36; /* Dark violet-gray instead of black */
+            --text-muted: #6b637a;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+        }
+
+        .dark {
+            /* Dark Mode (No pure black) */
+            --bg-main: #1a1625; /* Deep violet-gray */
+            --bg-glass: rgba(45, 35, 65, 0.4);
+            --border-glass: rgba(139, 92, 246, 0.2);
+            --text-main: #f5f3ff; /* Off-white violet */
+            --text-muted: #a78bfa;
+        }
+
+        .dracula {
+            /* Dracula Theme variants */
+            --bg-main: #282a36;
+            --bg-glass: rgba(68, 71, 90, 0.5);
+            --border-glass: rgba(189, 147, 249, 0.3);
+            --text-main: #f8f8f2;
+            --text-muted: #6272a4;
+            --accent: #bd93f9;
+            --accent-hover: #ff79c6;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            margin: 0;
+            overflow: hidden; /* App-like feel */
+        }
+
+        /* Glassmorphism utility classes */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        .glass-btn {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .glass-btn:hover {
+            background: var(--accent);
+            color: #f5f3ff;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .glass-btn-primary {
+            background: var(--accent);
+            color: #f5f3ff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .glass-btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+        }
+
+        .dark .glass-input, .dracula .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-glass);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Ambient Background Blobs for extra Glass effect */
+        .ambient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        
+        .blob-1 {
+            top: -10%; left: -10%;
+            width: 40vw; height: 40vw;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        }
+
+        .blob-2 {
+            bottom: -10%; right: -10%;
+            width: 30vw; height: 30vw;
+            background: radial-gradient(circle, var(--accent-hover) 0%, transparent 70%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 5%) scale(1.1); }
+        }
+        
+        iframe {
+            background: #fff; /* Ensure iframes have a white background if the target site is transparent */
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Decor -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const App = () => {
+            // Retrieve stored data or set defaults
+            const [spaces, setSpaces] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('linkvault_spaces');
+                    if (saved) return JSON.parse(saved);
+                } catch (e) { console.error(e); }
+                return [{ id: '1', name: 'General', icon: 'ph-folder', createdAt: new Date().toISOString() }];
+            });
+
+            const [links, setLinks] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('linkvault_links');
+                    if (saved) return JSON.parse(saved);
+                } catch (e) { console.error(e); }
+                return [];
+            });
+
+            const [activeSpaceId, setActiveSpaceId] = useState(spaces.length > 0 ? spaces[0].id : null);
+            const [theme, setTheme] = useState(() => localStorage.getItem('linkvault_theme') || 'system');
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+            const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, data: null });
+            const [previewUrl, setPreviewUrl] = useState(null);
+
+            // Save to LocalStorage whenever spaces or links change
+            useEffect(() => {
+                localStorage.setItem('linkvault_spaces', JSON.stringify(spaces));
+                localStorage.setItem('linkvault_links', JSON.stringify(links));
+            }, [spaces, links]);
+
+            // Save and Apply Theme
+            useEffect(() => {
+                localStorage.setItem('linkvault_theme', theme);
+                const root = document.documentElement;
+                root.classList.remove('dark', 'dracula');
+                
+                let activeTheme = theme;
+                if (theme === 'system') {
+                    activeTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+
+                if (activeTheme === 'dark') root.classList.add('dark');
+                if (activeTheme === 'dracula') root.classList.add('dracula');
+            }, [theme]);
+
+            const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
+            const activeLinks = links.filter(l => l.spaceId === activeSpaceId).sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+
+            const openModal = (type, data = null) => setModalConfig({ isOpen: true, type, data });
+            const closeModal = () => setModalConfig({ isOpen: false, type: null, data: null });
+
+            const handleAddSpace = (e) => {
+                e.preventDefault();
+                const name = e.target.spaceName.value.trim();
+                if (!name) return;
+                
+                const newSpace = { id: Date.now().toString(), name, icon: 'ph-folder', createdAt: new Date().toISOString() };
+                setSpaces([...spaces, newSpace]);
+                setActiveSpaceId(newSpace.id);
+                closeModal();
+            };
+
+            const handleRenameSpace = (e) => {
+                e.preventDefault();
+                const newName = e.target.spaceName.value.trim();
+                if (!newName) return;
+                
+                setSpaces(spaces.map(s => s.id === modalConfig.data.id ? { ...s, name: newName } : s));
+                closeModal();
+            };
+
+            const handleDeleteSpace = () => {
+                const spaceToDelete = modalConfig.data.id;
+                setSpaces(spaces.filter(s => s.id !== spaceToDelete));
+                setLinks(links.filter(l => l.spaceId !== spaceToDelete)); // Delete associated links
+                if (activeSpaceId === spaceToDelete) {
+                    const remaining = spaces.filter(s => s.id !== spaceToDelete);
+                    setActiveSpaceId(remaining.length > 0 ? remaining[0].id : null);
+                }
+                closeModal();
+            };
+
+            const handleAddLink = (e) => {
+                e.preventDefault();
+                if (!activeSpaceId) return;
+
+                const title = e.target.linkTitle.value.trim() || 'Untitled Link';
+                let url = e.target.linkUrl.value.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                const description = e.target.linkDesc.value.trim();
+                
+                const newLink = {
+                    id: Date.now().toString(),
+                    spaceId: activeSpaceId,
+                    title,
+                    url,
+                    description,
+                    addedAt: new Date().toISOString()
+                };
+                
+                setLinks([newLink, ...links]);
+                closeModal();
+            };
+
+            const handleDeleteLink = (id) => {
+                setLinks(links.filter(l => l.id !== id));
+                closeModal();
+            };
+
+            const openPreview = (url) => {
+                setPreviewUrl(url);
+            };
+
+            const Modal = () => {
+                if (!modalConfig.isOpen) return null;
+
+                return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+                        <div className="glass rounded-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold">
+                                    {modalConfig.type === 'addSpace' && 'Create New Space'}
+                                    {modalConfig.type === 'renameSpace' && 'Rename Space'}
+                                    {modalConfig.type === 'deleteSpace' && 'Delete Space'}
+                                    {modalConfig.type === 'addLink' && 'Save a Link'}
+                                </h2>
+                                <button onClick={closeModal} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition">
+                                    <i className="ph ph-x text-xl"></i>
+                                </button>
+                            </div>
+
+                            {modalConfig.type === 'addSpace' && (
+                                <form onSubmit={handleAddSpace} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Space Name</label>
+                                        <input type="text" name="spaceName" autoFocus required placeholder="e.g. Political Views, Design Docs" 
+                                               className="w-full glass-input rounded-xl px-4 py-3" />
+                                    </div>
+                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Create Space</button>
+                                </form>
+                            )}
+
+                            {modalConfig.type === 'renameSpace' && (
+                                <form onSubmit={handleRenameSpace} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">New Space Name</label>
+                                        <input type="text" name="spaceName" defaultValue={modalConfig.data.name} autoFocus required 
+                                               className="w-full glass-input rounded-xl px-4 py-3" />
+                                    </div>
+                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Rename Space</button>
+                                </form>
+                            )}
+
+                            {modalConfig.type === 'deleteSpace' && (
+                                <div className="flex flex-col gap-4">
+                                    <p className="opacity-80">Are you sure you want to delete <strong>{modalConfig.data.name}</strong>? All links inside this space will also be deleted. This cannot be undone.</p>
+                                    <div className="flex gap-3 mt-4">
+                                        <button onClick={closeModal} className="glass-btn flex-1 py-3 rounded-xl font-medium">Cancel</button>
+                                        <button onClick={handleDeleteSpace} className="bg-red-500/80 hover:bg-red-500 text-white flex-1 py-3 rounded-xl font-medium transition backdrop-blur-md">Delete Forever</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {modalConfig.type === 'addLink' && (
+                                <form onSubmit={handleAddLink} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">URL</label>
+                                        <input type="text" name="linkUrl" autoFocus required placeholder="example.com/article" 
+                                               className="w-full glass-input rounded-xl px-4 py-3" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Title</label>
+                                        <input type="text" name="linkTitle" placeholder="Title of the page" 
+                                               className="w-full glass-input rounded-xl px-4 py-3" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Notes / Description (Optional)</label>
+                                        <textarea name="linkDesc" rows="2" placeholder="Why are you saving this?" 
+                                                  className="w-full glass-input rounded-xl px-4 py-3 resize-none"></textarea>
+                                    </div>
+                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Save Link</button>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            const PreviewWindow = () => {
+                if (!previewUrl) return null;
+                return (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-6" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+                        <div className="glass rounded-2xl w-full h-full max-w-6xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out] border border-white/20 shadow-2xl">
+                            <div className="p-3 sm:p-4 flex justify-between items-center border-b border-[var(--border-glass)] bg-[var(--bg-glass)]">
+                                <div className="flex items-center gap-3 truncate text-sm sm:text-base font-medium">
+                                    <i className="ph ph-lock-key text-[var(--accent)]"></i>
+                                    <span className="truncate opacity-80">{previewUrl}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Open in new tab">
+                                        <i className="ph ph-arrow-square-out text-lg sm:text-xl"></i>
+                                    </a>
+                                    <button onClick={() => setPreviewUrl(null)} className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-500 transition" title="Close Preview">
+                                        <i className="ph ph-x text-lg sm:text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-1 w-full bg-white relative">
+                                <div className="absolute inset-0 flex items-center justify-center flex-col gap-3 z-0">
+                                    <i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i>
+                                    <p className="text-gray-500 text-sm">Loading Preview...</p>
+                                    <p className="text-gray-400 text-xs px-6 text-center">Note: Some sites block embedded previews. If it fails to load, use the 'Open in new tab' button above.</p>
+                                </div>
+                                {/* The iframe is layered above the loading spinner */}
+                                <iframe src={previewUrl} className="w-full h-full absolute inset-0 z-10 border-none bg-transparent" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="flex h-screen overflow-hidden">
+                    
+                    {/* Sidebar Toggle for Mobile */}
+                    <button 
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="md:hidden fixed bottom-6 right-6 z-40 glass-btn-primary p-4 rounded-full shadow-lg"
+                    >
+                        <i className={`ph ${isSidebarOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
+                    </button>
+
+                    {/* Sidebar: Spaces */}
+                    <aside className={`
+                        glass flex-shrink-0 border-r border-[var(--border-glass)]
+                        fixed md:relative z-30 h-full w-[280px]
+                        transition-transform duration-300 ease-in-out
+                        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                    `}>
+                        <div className="p-6 h-full flex flex-col">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_15px_var(--accent)]">
+                                    <i className="ph ph-link-simple text-2xl"></i>
+                                </div>
+                                <h1 className="text-xl font-bold tracking-tight">LinkVault</h1>
+                            </div>
+
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Your Spaces</h2>
+                                <button onClick={() => openModal('addSpace')} className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 text-[var(--accent)] transition">
+                                    <i className="ph ph-plus text-lg"></i>
+                                </button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto space-y-1 -mx-2 px-2">
+                                {spaces.map(space => (
+                                    <div key={space.id} 
+                                        className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all ${activeSpaceId === space.id ? 'bg-[var(--accent)] text-white shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-main)]'}`}
+                                        onClick={() => { setActiveSpaceId(space.id); setIsSidebarOpen(false); }}
+                                    >
+                                        <div className="flex items-center gap-3 truncate">
+                                            <i className={`ph ${space.icon} text-lg ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--accent)]'}`}></i>
+                                            <span className="font-medium truncate">{space.name}</span>
+                                        </div>
+                                        
+                                        {/* Space Actions Dropdown triggers */}
+                                        <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                                            <button onClick={(e) => { e.stopPropagation(); openModal('renameSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-pencil-simple"></i></button>
+                                            {spaces.length > 1 && (
+                                                <button onClick={(e) => { e.stopPropagation(); openModal('deleteSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-trash"></i></button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Theme Selector */}
+                            <div className="mt-6 pt-6 border-t border-[var(--border-glass)]">
+                                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-3">Theme</label>
+                                <div className="flex bg-black/5 dark:bg-white/5 rounded-xl p-1">
+                                    {['system', 'light', 'dark', 'dracula'].map(t => (
+                                        <button key={t} onClick={() => setTheme(t)} className={`flex-1 py-2 text-sm rounded-lg capitalize transition-all ${theme === t ? 'glass shadow-sm font-medium text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                                            {t === 'system' && <i className="ph ph-monitor text-lg"></i>}
+                                            {t === 'light' && <i className="ph ph-sun text-lg"></i>}
+                                            {t === 'dark' && <i className="ph ph-moon text-lg"></i>}
+                                            {t === 'dracula' && <i className="ph ph-drop text-lg"></i>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                        {/* Overlay when sidebar is open on mobile */}
+                        {isSidebarOpen && (
+                            <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-20" onClick={() => setIsSidebarOpen(false)}></div>
+                        )}
+
+                        {/* Top Header */}
+                        <header className="px-6 sm:px-10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1>
+                                <p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p>
+                            </div>
+                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center">
+                                <i className="ph ph-plus-circle text-xl"></i>
+                                Add New Link
+                            </button>
+                        </header>
+
+                        {/* Links Grid */}
+                        <div className="flex-1 overflow-y-auto p-6 sm:p-10">
+                            {activeLinks.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
+                                    <div className="w-24 h-24 mb-6 rounded-full glass flex items-center justify-center">
+                                        <i className="ph ph-link-break text-4xl text-[var(--accent)]"></i>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2">No links here yet</h3>
+                                    <p className="max-w-sm">Save your first link in this space by clicking the "Add New Link" button above.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
+                                    {activeLinks.map(link => (
+                                        <div key={link.id} className="glass rounded-2xl p-5 flex flex-col transition-transform hover:-translate-y-1 duration-300 group">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                    <img 
+                                                        src={`https://www.google.com/s2/favicons?domain=${link.url}&sz=64`} 
+                                                        alt="favicon" 
+                                                        className="w-6 h-6 rounded"
+                                                        onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
+                                                    />
+                                                    <i className="ph ph-globe text-xl text-[var(--accent)] hidden"></i>
+                                                </div>
+                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100">
+                                                    <i className="ph ph-trash text-lg"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <h3 className="font-bold text-lg mb-1 truncate" title={link.title}>{link.title}</h3>
+                                            <p className="text-xs text-[var(--text-muted)] truncate mb-3 font-mono">{link.url.replace(/^https?:\/\//, '')}</p>
+                                            
+                                            {link.description && (
+                                                <p className="text-sm opacity-80 mb-4 line-clamp-2 flex-1">{link.description}</p>
+                                            )}
+                                            
+                                            <div className="mt-auto pt-4 flex gap-2">
+                                                <button onClick={() => openPreview(link.url)} className="flex-1 glass-btn py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                                                    <i className="ph ph-eye"></i> Preview
+                                                </button>
+                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] hover:bg-[var(--accent)] hover:text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                                                    Visit <i className="ph ph-arrow-up-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </main>
+
+                    <Modal />
+                    <PreviewWindow />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
