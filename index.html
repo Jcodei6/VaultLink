@@ -55,6 +55,8 @@
             margin: 0;
             overflow: hidden;
         }
+        
+        /* Glassmorphism Classes */
         .glass {
             background: var(--bg-glass);
             backdrop-filter: blur(16px);
@@ -102,6 +104,8 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        
+        /* Ambient Blobs */
         .ambient-blob {
             position: absolute;
             border-radius: 50%;
@@ -112,7 +116,34 @@
         }
         .blob-1 { top: -10%; left: -10%; width: 40vw; height: 40vw; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
         .blob-2 { bottom: -10%; right: -10%; width: 30vw; height: 30vw; background: radial-gradient(circle, var(--accent-hover) 0%, transparent 70%); animation-delay: -10s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(5%, 5%) scale(1.1); } }
         iframe { background: #fff; }
+
+        /* 3D Flip Card Animation Styles */
+        .flip-container {
+            perspective: 1000px;
+        }
+        .flipper {
+            position: relative;
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            width: 100%;
+            max-width: 28rem;
+        }
+        .flipper.flipped {
+            transform: rotateY(180deg);
+        }
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            top: 0; left: 0;
+            min-height: 520px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .front { position: relative; transform: rotateY(0deg); z-index: 2; }
+        .back { transform: rotateY(180deg); }
     </style>
 </head>
 <body>
@@ -120,14 +151,14 @@
     <div class="ambient-blob blob-2"></div>
     <div id="root"></div>
 
-    <!-- YOUR EXACT FIREBASE SCRIPT (Plus Auth & Firestore added so the app functions) -->
+    <!-- FIREBASE MODULE SETUP WITH YOUR SPECIFIC KEYS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
-        // Added Authentication and Database imports required for the app to work
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
+        // Your exact Firebase config!
         const firebaseConfig = {
             apiKey: "AIzaSyCzLvhmEp8WWFDjEhGXiMhSQ9t5sLyScu4",
             authDomain: "vault-link-shanegwapings.firebaseapp.com",
@@ -138,13 +169,12 @@
             measurementId: "G-89N6YL1Q90"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Send tools to React application
+        // Exposing Firebase logic securely to React
         window.FirebaseAPI = {
             auth, db,
             signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
@@ -157,6 +187,7 @@
         const { useState, useEffect } = React;
 
         const App = () => {
+            // App and Firebase State
             const [fbAPI, setFbAPI] = useState(null);
             const [spaces, setSpaces] = useState([]);
             const [links, setLinks] = useState([]);
@@ -166,15 +197,22 @@
             });
             const [theme, setTheme] = useState(() => localStorage.getItem('linkvault_theme') || 'system');
             
+            // User & Auth State
             const [user, setUser] = useState(null);
             const [authMode, setAuthMode] = useState('login'); 
             const [authError, setAuthError] = useState('');
             const [loading, setLoading] = useState(true);
+            
+            // New password visibility states
+            const [showLoginPassword, setShowLoginPassword] = useState(false);
+            const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+            
+            // UI State
             const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, data: null });
             const [previewUrl, setPreviewUrl] = useState(null);
 
-            // Connect to the Firebase script you provided above
+            // 1. Connect to Firebase module script
             useEffect(() => {
                 let unsubscribe = null;
                 const checkFirebase = () => {
@@ -185,14 +223,14 @@
                             setLoading(false);
                         });
                     } else {
-                        setTimeout(checkFirebase, 50); // Keep checking until Firebase is loaded
+                        setTimeout(checkFirebase, 50); // Keep checking until Firebase loads
                     }
                 };
                 checkFirebase();
                 return () => { if (unsubscribe) unsubscribe(); };
             }, []);
 
-            // Fetch Data from your Firestore Cloud
+            // 2. Fetch User Data
             useEffect(() => {
                 if (!user || !fbAPI) return;
 
@@ -214,7 +252,7 @@
                 return () => { unsubSpaces(); unsubLinks(); }
             }, [user, fbAPI]);
 
-            // Save Theme & Active State
+            // 3. Keep LocalStorage theme/active tab in sync
             useEffect(() => {
                 if (activeSpaceId) localStorage.setItem('linkvault_activeSpace', JSON.stringify(activeSpaceId));
             }, [activeSpaceId]);
@@ -234,8 +272,8 @@
             const openModal = (type, data = null) => setModalConfig({ isOpen: true, type, data });
             const closeModal = () => setModalConfig({ isOpen: false, type: null, data: null });
 
-            // Authentication Functions
-            const handleAuth = async (e) => {
+            // AUTH FUNCTIONS
+            const handleAuth = async (e, mode) => {
                 e.preventDefault();
                 setAuthError('');
                 setLoading(true);
@@ -243,10 +281,11 @@
                 const password = e.target.password.value;
 
                 try {
-                    if (authMode === 'login') {
+                    if (mode === 'login') {
                         await fbAPI.signInWithEmailAndPassword(fbAPI.auth, email, password);
                     } else {
                         const userCredential = await fbAPI.createUserWithEmailAndPassword(fbAPI.auth, email, password);
+                        // Make a default space instantly
                         const defaultSpace = { name: 'General', icon: 'ph-folder', createdAt: new Date().toISOString() };
                         const spaceId = Date.now().toString();
                         await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', userCredential.user.uid, 'spaces', spaceId), defaultSpace);
@@ -262,7 +301,7 @@
                 setUser(null); setSpaces([]); setLinks([]);
             };
 
-            // Database Functions
+            // DB FUNCTIONS
             const handleAddSpace = async (e) => {
                 e.preventDefault();
                 const name = e.target.spaceName.value.trim();
@@ -285,6 +324,7 @@
             const handleDeleteSpace = async () => {
                 const spaceToDelete = modalConfig.data.id;
                 await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'spaces', spaceToDelete));
+                // Cascade delete links inside
                 links.filter(l => l.spaceId === spaceToDelete).forEach(async (link) => {
                     await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', link.id));
                 });
@@ -310,45 +350,132 @@
                 closeModal();
             };
 
-            // UI Render Logic
+            // ----------------------------------------------------
+            // RENDER LOGIC
+            // ----------------------------------------------------
+
+            // 1. Initial Loading Spinner
             if (loading && !user) {
-                return <div className="flex h-screen items-center justify-center relative"><i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i></div>;
+                return (
+                    <div className="flex h-screen items-center justify-center relative">
+                        <i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i>
+                    </div>
+                );
             }
 
+            // 2. Authentication Screen (with 3D Flip & Show/Hide Password)
             if (!user) {
                 return (
-                    <div className="flex h-screen items-center justify-center p-6 relative">
-                        <div className="glass max-w-md w-full p-8 rounded-3xl z-10 animate-[fadeIn_0.3s_ease-out]">
-                            <div className="flex justify-center mb-6">
-                                <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
-                                    <i className="ph ph-link-simple text-3xl"></i>
+                    <div className="flex h-screen items-center justify-center p-6 relative flip-container">
+                        
+                        {/* FLIPPER WRAPPER */}
+                        <div className={`flipper ${authMode === 'register' ? 'flipped' : ''}`}>
+                            
+                            {/* FRONT SIDE: LOG IN */}
+                            <div className="front glass rounded-3xl p-8 shadow-2xl">
+                                <div className="flex justify-center mb-6">
+                                    <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
+                                        <i className="ph ph-link-simple text-3xl"></i>
+                                    </div>
                                 </div>
+                                <h1 className="text-2xl font-bold text-center mb-2">Welcome Back</h1>
+                                <p className="text-center opacity-80 mb-8">Sign in to access your cloud links</p>
+
+                                {authError && authMode === 'login' && <div className="bg-red-500/10 text-red-500 p-3 rounded-xl mb-6 text-sm font-medium border border-red-500/20 text-center">{authError}</div>}
+
+                                <form onSubmit={(e) => handleAuth(e, 'login')} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Email</label>
+                                        <input type="email" name="email" required className="w-full glass-input rounded-xl px-4 py-3" placeholder="you@example.com" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Password</label>
+                                        <div className="relative">
+                                            <input 
+                                                type={showLoginPassword ? "text" : "password"} 
+                                                name="password" required minLength="6" 
+                                                className="w-full glass-input rounded-xl pl-4 pr-12 py-3" 
+                                                placeholder="••••••••" 
+                                            />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--accent)] transition flex items-center justify-center"
+                                                title={showLoginPassword ? "Hide password" : "Show password"}
+                                            >
+                                                <i className={`ph ${showLoginPassword ? 'ph-eye-slash' : 'ph-eye'} text-xl`}></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="submit" disabled={loading} className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-4 flex justify-center items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95">
+                                        {loading && authMode === 'login' ? <i className="ph ph-spinner-gap animate-spin text-xl"></i> : 'Sign In'}
+                                    </button>
+                                </form>
+                                <p className="text-center mt-6 text-sm opacity-80">
+                                    Don't have an account? 
+                                    <button onClick={() => { setAuthMode('register'); setAuthError(''); }} className="text-[var(--accent)] font-bold hover:underline ml-1">
+                                        Sign up
+                                    </button>
+                                </p>
                             </div>
-                            <h1 className="text-2xl font-bold text-center mb-2">Welcome to LinkVault</h1>
-                            <p className="text-center opacity-80 mb-8">{authMode === 'login' ? 'Sign in to access your cloud links' : 'Create an account to start syncing'}</p>
 
-                            {authError && <div className="bg-red-500/10 text-red-500 p-3 rounded-xl mb-6 text-sm font-medium border border-red-500/20 text-center">{authError}</div>}
+                            {/* BACK SIDE: REGISTER */}
+                            <div className="back glass rounded-3xl p-8 shadow-2xl">
+                                <div className="flex justify-center mb-6">
+                                    <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
+                                        <i className="ph ph-link-simple text-3xl"></i>
+                                    </div>
+                                </div>
+                                <h1 className="text-2xl font-bold text-center mb-2">Create Account</h1>
+                                <p className="text-center opacity-80 mb-8">Join LinkVault to start syncing</p>
 
-                            <form onSubmit={handleAuth} className="flex flex-col gap-4">
-                                <div><label className="block text-sm font-medium mb-1 opacity-80">Email</label><input type="email" name="email" required className="w-full glass-input rounded-xl px-4 py-3" placeholder="you@example.com" /></div>
-                                <div><label className="block text-sm font-medium mb-1 opacity-80">Password</label><input type="password" name="password" required minLength="6" className="w-full glass-input rounded-xl px-4 py-3" placeholder="••••••••" /></div>
-                                <button type="submit" disabled={loading} className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-4 flex justify-center items-center gap-2">
-                                    {loading ? <i className="ph ph-spinner-gap animate-spin text-xl"></i> : (authMode === 'login' ? 'Sign In' : 'Create Account')}
-                                </button>
-                            </form>
-                            <p className="text-center mt-6 text-sm opacity-80">
-                                {authMode === 'login' ? "Don't have an account? " : "Already have an account? "}
-                                <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }} className="text-[var(--accent)] font-bold hover:underline">
-                                    {authMode === 'login' ? 'Sign up' : 'Log in'}
-                                </button>
-                            </p>
+                                {authError && authMode === 'register' && <div className="bg-red-500/10 text-red-500 p-3 rounded-xl mb-6 text-sm font-medium border border-red-500/20 text-center">{authError}</div>}
+
+                                <form onSubmit={(e) => handleAuth(e, 'register')} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Email</label>
+                                        <input type="email" name="email" required className="w-full glass-input rounded-xl px-4 py-3" placeholder="you@example.com" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 opacity-80">Choose Password</label>
+                                        <div className="relative">
+                                            <input 
+                                                type={showRegisterPassword ? "text" : "password"} 
+                                                name="password" required minLength="6" 
+                                                className="w-full glass-input rounded-xl pl-4 pr-12 py-3" 
+                                                placeholder="••••••••" 
+                                            />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--accent)] transition flex items-center justify-center"
+                                                title={showRegisterPassword ? "Hide password" : "Show password"}
+                                            >
+                                                <i className={`ph ${showRegisterPassword ? 'ph-eye-slash' : 'ph-eye'} text-xl`}></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="submit" disabled={loading} className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-4 flex justify-center items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95">
+                                        {loading && authMode === 'register' ? <i className="ph ph-spinner-gap animate-spin text-xl"></i> : 'Create Account'}
+                                    </button>
+                                </form>
+                                <p className="text-center mt-6 text-sm opacity-80">
+                                    Already have an account? 
+                                    <button onClick={() => { setAuthMode('login'); setAuthError(''); }} className="text-[var(--accent)] font-bold hover:underline ml-1">
+                                        Log in
+                                    </button>
+                                </p>
+                            </div>
+
                         </div>
                     </div>
                 );
             }
 
+            // 3. Main Dashboard UI
             return (
                 <div className="flex h-screen overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+                    
                     <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden fixed bottom-6 right-6 z-40 glass-btn-primary p-4 rounded-full shadow-lg">
                         <i className={`ph ${isSidebarOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
                     </button>
@@ -374,8 +501,8 @@
                                             <i className={`ph ${space.icon} text-lg ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--accent)]'}`}></i><span className="font-medium truncate">{space.name}</span>
                                         </div>
                                         <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                                            <button onClick={(e) => { e.stopPropagation(); openModal('renameSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-pencil-simple"></i></button>
-                                            {spaces.length > 1 && <button onClick={(e) => { e.stopPropagation(); openModal('deleteSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-trash"></i></button>}
+                                            <button onClick={(e) => { e.stopPropagation(); openModal('renameSpace', space); }} className="p-1 hover:scale-110 transition" title="Rename"><i className="ph ph-pencil-simple"></i></button>
+                                            {spaces.length > 1 && <button onClick={(e) => { e.stopPropagation(); openModal('deleteSpace', space); }} className="p-1 hover:scale-110 transition" title="Delete"><i className="ph ph-trash"></i></button>}
                                         </div>
                                     </div>
                                 ))}
@@ -386,7 +513,7 @@
                                     <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-2">Theme</label>
                                     <div className="flex bg-black/5 dark:bg-white/5 rounded-xl p-1">
                                         {['system', 'light', 'dark', 'dracula'].map(t => (
-                                            <button key={t} onClick={() => setTheme(t)} className={`flex-1 py-1.5 text-sm rounded-lg transition-all ${theme === t ? 'glass shadow-sm text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                                            <button key={t} onClick={() => setTheme(t)} className={`flex-1 py-1.5 text-sm rounded-lg transition-all ${theme === t ? 'glass shadow-sm text-[var(--accent)] font-medium' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`} title={t}>
                                                 {t === 'system' && <i className="ph ph-monitor text-lg"></i>}
                                                 {t === 'light' && <i className="ph ph-sun text-lg"></i>}
                                                 {t === 'dark' && <i className="ph ph-moon text-lg"></i>}
@@ -395,7 +522,7 @@
                                         ))}
                                     </div>
                                 </div>
-                                <button onClick={handleLogout} className="glass-btn w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:text-red-500 hover:border-red-500/50">
+                                <button onClick={handleLogout} className="glass-btn w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:text-red-500 hover:border-red-500/50 transition">
                                     <i className="ph ph-sign-out"></i> Sign Out
                                 </button>
                             </div>
@@ -406,8 +533,14 @@
                         {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-20" onClick={() => setIsSidebarOpen(false)}></div>}
 
                         <header className="px-6 sm:px-10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
-                            <div><h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1><p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p></div>
-                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center"><i className="ph ph-plus-circle text-xl"></i>Add New Link</button>
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1>
+                                <p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p>
+                            </div>
+                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center">
+                                <i className="ph ph-plus-circle text-xl"></i>
+                                Add New Link
+                            </button>
                         </header>
 
                         <div className="flex-1 overflow-y-auto p-6 sm:p-10">
@@ -426,14 +559,23 @@
                                                     <img src={`https://www.google.com/s2/favicons?domain=${link.url}&sz=64`} alt="favicon" className="w-6 h-6 rounded" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                                                     <i className="ph ph-globe text-xl text-[var(--accent)] hidden"></i>
                                                 </div>
-                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100"><i className="ph ph-trash text-lg"></i></button>
+                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100" title="Delete Link">
+                                                    <i className="ph ph-trash text-lg"></i>
+                                                </button>
                                             </div>
+                                            
                                             <h3 className="font-bold text-lg mb-1 truncate" title={link.title}>{link.title}</h3>
                                             <p className="text-xs text-[var(--text-muted)] truncate mb-3 font-mono">{link.url.replace(/^https?:\/\//, '')}</p>
+                                            
                                             {link.description && <p className="text-sm opacity-80 mb-4 line-clamp-2 flex-1">{link.description}</p>}
+                                            
                                             <div className="mt-auto pt-4 flex gap-2">
-                                                <button onClick={() => setPreviewUrl(link.url)} className="flex-1 glass-btn py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2"><i className="ph ph-eye"></i> Preview</button>
-                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] hover:bg-[var(--accent)] hover:text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">Visit <i className="ph ph-arrow-up-right"></i></a>
+                                                <button onClick={() => setPreviewUrl(link.url)} className="flex-1 glass-btn py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                                                    <i className="ph ph-eye"></i> Preview
+                                                </button>
+                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] hover:bg-[var(--accent)] hover:text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                                                    Visit <i className="ph ph-arrow-up-right"></i>
+                                                </a>
                                             </div>
                                         </div>
                                     ))}
@@ -442,7 +584,7 @@
                         </div>
                     </main>
 
-                    {/* Modals */}
+                    {/* Popup Modals */}
                     {modalConfig.isOpen && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
                             <div className="glass rounded-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
@@ -489,7 +631,7 @@
                         </div>
                     )}
 
-                    {/* Preview iframe */}
+                    {/* Preview iframe Modal */}
                     {previewUrl && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-6" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
                             <div className="glass rounded-2xl w-full h-full max-w-6xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out] border border-white/20 shadow-2xl">
