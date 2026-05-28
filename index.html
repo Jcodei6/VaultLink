@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LinkVault - Cloud Synced</title>
     
     <!-- PWA & App Icons -->
@@ -54,6 +54,7 @@
             transition: background-color 0.4s ease, color 0.4s ease;
             margin: 0;
             overflow: hidden;
+            overscroll-behavior: none; /* Prevents pull-to-refresh on mobile */
         }
         
         /* Glassmorphism Classes */
@@ -105,6 +106,13 @@
         ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         
+        /* Stop iOS Auto-Zoom */
+        @media screen and (max-width: 768px) {
+            input, textarea, select {
+                font-size: 16px !important;
+            }
+        }
+
         /* Ambient Blobs */
         .ambient-blob {
             position: absolute;
@@ -357,7 +365,7 @@
             // 1. Initial Loading Spinner
             if (loading && !user) {
                 return (
-                    <div className="flex h-screen items-center justify-center relative">
+                    <div className="flex h-[100dvh] items-center justify-center relative">
                         <i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i>
                     </div>
                 );
@@ -366,7 +374,7 @@
             // 2. Authentication Screen (with 3D Flip & Show/Hide Password)
             if (!user) {
                 return (
-                    <div className="flex h-screen items-center justify-center p-6 relative flip-container">
+                    <div className="flex h-[100dvh] items-center justify-center p-6 relative flip-container">
                         
                         {/* FLIPPER WRAPPER */}
                         <div className={`flipper ${authMode === 'register' ? 'flipped' : ''}`}>
@@ -474,13 +482,14 @@
 
             // 3. Main Dashboard UI
             return (
-                <div className="flex h-screen overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+                <div className="flex h-[100dvh] overflow-hidden animate-[fadeIn_0.3s_ease-out]">
                     
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden fixed bottom-6 right-6 z-40 glass-btn-primary p-4 rounded-full shadow-lg">
-                        <i className={`ph ${isSidebarOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
-                    </button>
-
-                    <aside className={`glass flex-shrink-0 border-r border-[var(--border-glass)] fixed md:relative z-30 h-full w-[280px] transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                    <aside className={`glass flex-shrink-0 border-r border-[var(--border-glass)] fixed md:relative z-40 h-full w-[280px] transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                        {/* Mobile Sidebar Close Button */}
+                        <button onClick={() => setIsSidebarOpen(false)} className="md:hidden absolute top-5 right-5 p-2 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--text-main)] hover:bg-red-500 hover:text-white transition-colors z-50">
+                            <i className="ph ph-x text-xl"></i>
+                        </button>
+                        
                         <div className="p-6 h-full flex flex-col">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_15px_var(--accent)]"><i className="ph ph-link-simple text-2xl"></i></div>
@@ -530,20 +539,29 @@
                     </aside>
 
                     <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-                        {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-20" onClick={() => setIsSidebarOpen(false)}></div>}
+                        {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-30" onClick={() => setIsSidebarOpen(false)}></div>}
 
-                        <header className="px-6 sm:px-10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1>
-                                <p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p>
+                        {/* Top Header - Updated for Mobile Alignment and Burger Menu */}
+                        <header className="px-5 sm:px-10 py-5 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <button 
+                                    onClick={() => setIsSidebarOpen(true)} 
+                                    className="md:hidden p-2 -ml-2 rounded-xl bg-black/5 dark:bg-white/5 text-[var(--text-main)] hover:bg-[var(--accent)] hover:text-white transition-colors"
+                                >
+                                    <i className="ph ph-list text-2xl"></i>
+                                </button>
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold mb-1 truncate">{activeSpace?.name || 'Loading...'}</h1>
+                                    <p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p>
+                                </div>
                             </div>
-                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center">
+                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center flex-shrink-0">
                                 <i className="ph ph-plus-circle text-xl"></i>
                                 Add New Link
                             </button>
                         </header>
 
-                        <div className="flex-1 overflow-y-auto p-6 sm:p-10">
+                        <div className="flex-1 overflow-y-auto p-5 sm:p-10">
                             {activeLinks.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
                                     <div className="w-24 h-24 mb-6 rounded-full glass flex items-center justify-center"><i className="ph ph-cloud-arrow-up text-4xl text-[var(--accent)]"></i></div>
@@ -559,13 +577,13 @@
                                                     <img src={`https://www.google.com/s2/favicons?domain=${link.url}&sz=64`} alt="favicon" className="w-6 h-6 rounded" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                                                     <i className="ph ph-globe text-xl text-[var(--accent)] hidden"></i>
                                                 </div>
-                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100" title="Delete Link">
+                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition sm:opacity-0 group-hover:opacity-100" title="Delete Link">
                                                     <i className="ph ph-trash text-lg"></i>
                                                 </button>
                                             </div>
                                             
                                             <h3 className="font-bold text-lg mb-1 truncate" title={link.title}>{link.title}</h3>
-                                            <p className="text-xs text-[var(--text-muted)] truncate mb-3 font-mono">{link.url.replace(/^https?:\/\//, '')}</p>
+                                            <p className="text-xs text-[var(--text-muted)] truncate mb-3 font-mono" title={link.url}>{link.url.replace(/^https?:\/\//, '')}</p>
                                             
                                             {link.description && <p className="text-sm opacity-80 mb-4 line-clamp-2 flex-1">{link.description}</p>}
                                             
@@ -586,7 +604,7 @@
 
                     {/* Popup Modals */}
                     {modalConfig.isOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
                             <div className="glass rounded-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-xl font-bold">
@@ -595,7 +613,7 @@
                                         {modalConfig.type === 'deleteSpace' && 'Delete Space'}
                                         {modalConfig.type === 'addLink' && 'Save a Link'}
                                     </h2>
-                                    <button onClick={closeModal} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition"><i className="ph ph-x text-xl"></i></button>
+                                    <button onClick={closeModal} className="p-2 -mr-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition"><i className="ph ph-x text-xl"></i></button>
                                 </div>
 
                                 {modalConfig.type === 'addSpace' && (
@@ -614,8 +632,8 @@
                                     <div className="flex flex-col gap-4">
                                         <p className="opacity-80">Delete <strong>{modalConfig.data.name}</strong> and all its links forever?</p>
                                         <div className="flex gap-3 mt-4">
-                                            <button onClick={closeModal} className="glass-btn flex-1 py-3 rounded-xl font-medium">Cancel</button>
-                                            <button onClick={handleDeleteSpace} className="bg-red-500/80 hover:bg-red-500 text-white flex-1 py-3 rounded-xl font-medium transition">Delete</button>
+                                            <button type="button" onClick={closeModal} className="glass-btn flex-1 py-3 rounded-xl font-medium">Cancel</button>
+                                            <button type="button" onClick={handleDeleteSpace} className="bg-red-500/80 hover:bg-red-500 text-white flex-1 py-3 rounded-xl font-medium transition">Delete</button>
                                         </div>
                                     </div>
                                 )}
