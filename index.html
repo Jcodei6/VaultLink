@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LinkVault - Cloud Synced</title>
     
-    <!-- PWA & App Icons -->
     <meta name="theme-color" content="#8b5cf6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +12,8 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
     
-    <!-- Fonts, Icons, React, and Tailwind -->
+    <link rel="manifest" href="./manifest.json">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -54,10 +54,9 @@
             transition: background-color 0.4s ease, color 0.4s ease;
             margin: 0;
             overflow: hidden;
-            overscroll-behavior: none; /* Prevents pull-to-refresh on mobile */
+            overscroll-behavior: none; 
         }
         
-        /* Glassmorphism Classes */
         .glass {
             background: var(--bg-glass);
             backdrop-filter: blur(16px);
@@ -106,14 +105,12 @@
         ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         
-        /* Stop iOS Auto-Zoom */
         @media screen and (max-width: 768px) {
             input, textarea, select {
                 font-size: 16px !important;
             }
         }
 
-        /* Ambient Blobs */
         .ambient-blob {
             position: absolute;
             border-radius: 50%;
@@ -127,7 +124,6 @@
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(5%, 5%) scale(1.1); } }
         iframe { background: #fff; }
 
-        /* 3D Flip Card Animation Styles */
         .flip-container {
             perspective: 1000px;
         }
@@ -147,19 +143,30 @@
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             top: 0; left: 0;
-            min-height: 560px; /* Increased slightly for signature */
+            min-height: 560px; 
             display: flex; flex-direction: column; justify-content: center;
         }
         .front { position: relative; transform: rotateY(0deg); z-index: 2; }
         .back { transform: rotateY(180deg); }
     </style>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('SW registered successfully');
+                }).catch(err => {
+                    console.log('SW registration failed:', err);
+                });
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="ambient-blob blob-1"></div>
     <div class="ambient-blob blob-2"></div>
     <div id="root"></div>
 
-    <!-- FIREBASE MODULE SETUP WITH YOUR SPECIFIC KEYS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
@@ -188,12 +195,10 @@
         };
     </script>
 
-    <!-- REACT APPLICATION LOGIC -->
     <script type="text/babel">
         const { useState, useEffect } = React;
 
         const App = () => {
-            // App and Firebase State
             const [fbAPI, setFbAPI] = useState(null);
             const [spaces, setSpaces] = useState([]);
             const [links, setLinks] = useState([]);
@@ -203,22 +208,18 @@
             });
             const [theme, setTheme] = useState(() => localStorage.getItem('linkvault_theme') || 'system');
             
-            // User & Auth State
             const [user, setUser] = useState(null);
             const [authMode, setAuthMode] = useState('login'); 
             const [authError, setAuthError] = useState('');
             const [loading, setLoading] = useState(true);
             
-            // Password visibility states
             const [showLoginPassword, setShowLoginPassword] = useState(false);
             const [showRegisterPassword, setShowRegisterPassword] = useState(false);
             
-            // UI State
             const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, data: null });
             const [previewUrl, setPreviewUrl] = useState(null);
 
-            // 1. Connect to Firebase module script
             useEffect(() => {
                 let unsubscribe = null;
                 const checkFirebase = () => {
@@ -229,14 +230,13 @@
                             setLoading(false);
                         });
                     } else {
-                        setTimeout(checkFirebase, 50); // Keep checking until Firebase loads
+                        setTimeout(checkFirebase, 50); 
                     }
                 };
                 checkFirebase();
                 return () => { if (unsubscribe) unsubscribe(); };
             }, []);
 
-            // 2. Fetch User Data
             useEffect(() => {
                 if (!user || !fbAPI) return;
 
@@ -258,7 +258,6 @@
                 return () => { unsubSpaces(); unsubLinks(); }
             }, [user, fbAPI]);
 
-            // 3. Keep LocalStorage theme/active tab in sync
             useEffect(() => {
                 if (activeSpaceId) localStorage.setItem('linkvault_activeSpace', JSON.stringify(activeSpaceId));
             }, [activeSpaceId]);
@@ -278,7 +277,6 @@
             const openModal = (type, data = null) => setModalConfig({ isOpen: true, type, data });
             const closeModal = () => setModalConfig({ isOpen: false, type: null, data: null });
 
-            // AUTH FUNCTIONS
             const handleAuth = async (e, mode) => {
                 e.preventDefault();
                 setAuthError('');
@@ -306,7 +304,6 @@
                 setUser(null); setSpaces([]); setLinks([]);
             };
 
-            // DB FUNCTIONS
             const handleAddSpace = async (e) => {
                 e.preventDefault();
                 const name = e.target.spaceName.value.trim();
@@ -353,10 +350,6 @@
                 await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', id));
                 closeModal();
             };
-
-            // ----------------------------------------------------
-            // RENDER LOGIC
-            // ----------------------------------------------------
 
             if (loading && !user) {
                 return (
@@ -418,7 +411,6 @@
                                     </button>
                                 </p>
 
-                                {/* Signature */}
                                 <div className="mt-auto pt-6 text-center">
                                     <p className="text-[11px] text-[var(--text-muted)] opacity-60">
                                         Developed by <span className="font-semibold text-[var(--accent)]">Harvy Jay Wagas</span>
@@ -473,7 +465,6 @@
                                     </button>
                                 </p>
 
-                                {/* Signature */}
                                 <div className="mt-auto pt-6 text-center">
                                     <p className="text-[11px] text-[var(--text-muted)] opacity-60">
                                         Developed by <span className="font-semibold text-[var(--accent)]">Harvy Jay Wagas</span>
@@ -486,12 +477,10 @@
                 );
             }
 
-            // 3. Main Dashboard UI
             return (
                 <div className="flex h-[100dvh] overflow-hidden animate-[fadeIn_0.3s_ease-out]">
                     
                     <aside className={`glass flex-shrink-0 border-r border-[var(--border-glass)] fixed md:relative z-40 h-full w-[280px] transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                        {/* Mobile Sidebar Close Button */}
                         <button onClick={() => setIsSidebarOpen(false)} className="md:hidden absolute top-5 right-5 p-2 rounded-lg bg-black/5 dark:bg-white/5 text-[var(--text-main)] hover:bg-red-500 hover:text-white transition-colors z-50">
                             <i className="ph ph-x text-xl"></i>
                         </button>
@@ -541,7 +530,6 @@
                                     <i className="ph ph-sign-out"></i> Sign Out
                                 </button>
                                 
-                                {/* Signature inside app sidebar */}
                                 <div className="text-center mt-2">
                                     <p className="text-[10px] text-[var(--text-muted)] opacity-60">
                                         Developed by <span className="font-semibold text-[var(--text-main)]">Harvy Jay Wagas</span>
@@ -554,7 +542,6 @@
                     <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                         {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-30" onClick={() => setIsSidebarOpen(false)}></div>}
 
-                        {/* Top Header */}
                         <header className="px-5 sm:px-10 py-5 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
                             <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <button 
