@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkVault - Glassmorphism Link Manager</title>
+    <title>LinkVault - Cloud Synced</title>
     
-    <!-- PWA & App Icons (Violet Theme) -->
+    <!-- PWA & App Icons -->
     <meta name="theme-color" content="#8b5cf6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Embedded SVG Logo for Favicon and App Icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%238b5cf6'/%3E%3Cpath d='M256 160c-53 0-96 43-96 96s43 96 96 96 96-43 96-96-43-96-96-96zm0 160c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64z' fill='%23f5f3ff'/%3E%3C/svg%3E">
     
-    <!-- Embedded Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22LinkVault%22%2C%22short_name%22%3A%22LinkVault%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a1625%22%2C%22theme_color%22%3A%22%238b5cf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%253E%253Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27112%27%20fill%3D%27%25238b5cf6%27%2F%253E%253Cpath%20d%3D%27M256%20160c-53%200-96%2043-96%2096s43%2096%2096%2096%2096-43%2096-96-43-96-96-96zm0%20160c-35.3%200-64-28.7-64-64s28.7-64%2064-64%2064%2028.7%2064%2064-28.7%2064-64%2064z%27%20fill%3D%27%2523f5f3ff%27%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-
     <!-- Fonts, Icons, React, and Tailwind -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -28,27 +23,22 @@
 
     <style>
         :root {
-            /* Avoid pure black/white - Light Mode Defaults */
-            --bg-main: #f5f3ff; /* Very light violet */
+            --bg-main: #f5f3ff;
             --bg-glass: rgba(237, 233, 254, 0.6);
             --border-glass: rgba(139, 92, 246, 0.15);
-            --text-main: #2e2a36; /* Dark violet-gray instead of black */
+            --text-main: #2e2a36;
             --text-muted: #6b637a;
             --accent: #8b5cf6;
             --accent-hover: #7c3aed;
         }
-
         .dark {
-            /* Dark Mode (No pure black) */
-            --bg-main: #1a1625; /* Deep violet-gray */
+            --bg-main: #1a1625;
             --bg-glass: rgba(45, 35, 65, 0.4);
             --border-glass: rgba(139, 92, 246, 0.2);
-            --text-main: #f5f3ff; /* Off-white violet */
+            --text-main: #f5f3ff;
             --text-muted: #a78bfa;
         }
-
         .dracula {
-            /* Dracula Theme variants */
             --bg-main: #282a36;
             --bg-glass: rgba(68, 71, 90, 0.5);
             --border-glass: rgba(189, 147, 249, 0.3);
@@ -57,17 +47,14 @@
             --accent: #bd93f9;
             --accent-hover: #ff79c6;
         }
-
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             transition: background-color 0.4s ease, color 0.4s ease;
             margin: 0;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden;
         }
-
-        /* Glassmorphism utility classes */
         .glass {
             background: var(--bg-glass);
             backdrop-filter: blur(16px);
@@ -75,66 +62,46 @@
             border: 1px solid var(--border-glass);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
         }
-
         .glass-btn {
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             color: var(--text-main);
             transition: all 0.2s ease;
         }
-
         .glass-btn:hover {
             background: var(--accent);
             color: #f5f3ff;
             border-color: var(--accent);
             transform: translateY(-2px);
         }
-
         .glass-btn-primary {
             background: var(--accent);
             color: #f5f3ff;
             border: none;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
-
         .glass-btn-primary:hover {
             background: var(--accent-hover);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
         }
-
         .glass-input {
             background: rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-glass);
             color: var(--text-main);
         }
-
         .dark .glass-input, .dracula .glass-input {
             background: rgba(255, 255, 255, 0.05);
         }
-
         .glass-input:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
         }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-glass);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
-        }
-
-        /* Ambient Background Blobs for extra Glass effect */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         .ambient-blob {
             position: absolute;
             border-radius: 50%;
@@ -143,81 +110,120 @@
             opacity: 0.5;
             animation: float 20s infinite ease-in-out alternate;
         }
-        
-        .blob-1 {
-            top: -10%; left: -10%;
-            width: 40vw; height: 40vw;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-        }
-
-        .blob-2 {
-            bottom: -10%; right: -10%;
-            width: 30vw; height: 30vw;
-            background: radial-gradient(circle, var(--accent-hover) 0%, transparent 70%);
-            animation-delay: -10s;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(5%, 5%) scale(1.1); }
-        }
-        
-        iframe {
-            background: #fff; /* Ensure iframes have a white background if the target site is transparent */
-        }
+        .blob-1 { top: -10%; left: -10%; width: 40vw; height: 40vw; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
+        .blob-2 { bottom: -10%; right: -10%; width: 30vw; height: 30vw; background: radial-gradient(circle, var(--accent-hover) 0%, transparent 70%); animation-delay: -10s; }
+        iframe { background: #fff; }
     </style>
 </head>
 <body>
-    <!-- Background Decor -->
     <div class="ambient-blob blob-1"></div>
     <div class="ambient-blob blob-2"></div>
-
     <div id="root"></div>
 
+    <!-- YOUR EXACT FIREBASE SCRIPT (Plus Auth & Firestore added so the app functions) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+        // Added Authentication and Database imports required for the app to work
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzLvhmEp8WWFDjEhGXiMhSQ9t5sLyScu4",
+            authDomain: "vault-link-shanegwapings.firebaseapp.com",
+            projectId: "vault-link-shanegwapings",
+            storageBucket: "vault-link-shanegwapings.firebasestorage.app",
+            messagingSenderId: "175918890212",
+            appId: "1:175918890212:web:f812e7f7628385dc8980f1",
+            measurementId: "G-89N6YL1Q90"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Send tools to React application
+        window.FirebaseAPI = {
+            auth, db,
+            signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
+            collection, doc, setDoc, deleteDoc, onSnapshot
+        };
+    </script>
+
+    <!-- REACT APPLICATION LOGIC -->
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
 
         const App = () => {
-            // Retrieve stored data or set defaults
-            const [spaces, setSpaces] = useState(() => {
-                try {
-                    const saved = localStorage.getItem('linkvault_spaces');
-                    if (saved) return JSON.parse(saved);
-                } catch (e) { console.error(e); }
-                return [{ id: '1', name: 'General', icon: 'ph-folder', createdAt: new Date().toISOString() }];
+            const [fbAPI, setFbAPI] = useState(null);
+            const [spaces, setSpaces] = useState([]);
+            const [links, setLinks] = useState([]);
+            const [activeSpaceId, setActiveSpaceId] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('linkvault_activeSpace')); }
+                catch (e) { return null; }
             });
-
-            const [links, setLinks] = useState(() => {
-                try {
-                    const saved = localStorage.getItem('linkvault_links');
-                    if (saved) return JSON.parse(saved);
-                } catch (e) { console.error(e); }
-                return [];
-            });
-
-            const [activeSpaceId, setActiveSpaceId] = useState(spaces.length > 0 ? spaces[0].id : null);
             const [theme, setTheme] = useState(() => localStorage.getItem('linkvault_theme') || 'system');
+            
+            const [user, setUser] = useState(null);
+            const [authMode, setAuthMode] = useState('login'); 
+            const [authError, setAuthError] = useState('');
+            const [loading, setLoading] = useState(true);
             const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null, data: null });
             const [previewUrl, setPreviewUrl] = useState(null);
 
-            // Save to LocalStorage whenever spaces or links change
+            // Connect to the Firebase script you provided above
             useEffect(() => {
-                localStorage.setItem('linkvault_spaces', JSON.stringify(spaces));
-                localStorage.setItem('linkvault_links', JSON.stringify(links));
-            }, [spaces, links]);
+                let unsubscribe = null;
+                const checkFirebase = () => {
+                    if (window.FirebaseAPI && window.FirebaseAPI.auth) {
+                        setFbAPI(window.FirebaseAPI);
+                        unsubscribe = window.FirebaseAPI.onAuthStateChanged(window.FirebaseAPI.auth, (currentUser) => {
+                            setUser(currentUser);
+                            setLoading(false);
+                        });
+                    } else {
+                        setTimeout(checkFirebase, 50); // Keep checking until Firebase is loaded
+                    }
+                };
+                checkFirebase();
+                return () => { if (unsubscribe) unsubscribe(); };
+            }, []);
 
-            // Save and Apply Theme
+            // Fetch Data from your Firestore Cloud
+            useEffect(() => {
+                if (!user || !fbAPI) return;
+
+                const spacesRef = fbAPI.collection(fbAPI.db, 'users', user.uid, 'spaces');
+                const linksRef = fbAPI.collection(fbAPI.db, 'users', user.uid, 'links');
+
+                const unsubSpaces = fbAPI.onSnapshot(spacesRef, (snapshot) => {
+                    const loadedSpaces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setSpaces(loadedSpaces);
+                    if (loadedSpaces.length > 0) {
+                        setActiveSpaceId(prev => (!prev || !loadedSpaces.find(s => s.id === prev)) ? loadedSpaces[0].id : prev);
+                    }
+                });
+
+                const unsubLinks = fbAPI.onSnapshot(linksRef, (snapshot) => {
+                    setLinks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                });
+
+                return () => { unsubSpaces(); unsubLinks(); }
+            }, [user, fbAPI]);
+
+            // Save Theme & Active State
+            useEffect(() => {
+                if (activeSpaceId) localStorage.setItem('linkvault_activeSpace', JSON.stringify(activeSpaceId));
+            }, [activeSpaceId]);
+
             useEffect(() => {
                 localStorage.setItem('linkvault_theme', theme);
                 const root = document.documentElement;
                 root.classList.remove('dark', 'dracula');
-                
-                let activeTheme = theme;
-                if (theme === 'system') {
-                    activeTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-
+                let activeTheme = theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
                 if (activeTheme === 'dark') root.classList.add('dark');
                 if (activeTheme === 'dracula') root.classList.add('dracula');
             }, [theme]);
@@ -228,278 +234,188 @@
             const openModal = (type, data = null) => setModalConfig({ isOpen: true, type, data });
             const closeModal = () => setModalConfig({ isOpen: false, type: null, data: null });
 
-            const handleAddSpace = (e) => {
+            // Authentication Functions
+            const handleAuth = async (e) => {
+                e.preventDefault();
+                setAuthError('');
+                setLoading(true);
+                const email = e.target.email.value;
+                const password = e.target.password.value;
+
+                try {
+                    if (authMode === 'login') {
+                        await fbAPI.signInWithEmailAndPassword(fbAPI.auth, email, password);
+                    } else {
+                        const userCredential = await fbAPI.createUserWithEmailAndPassword(fbAPI.auth, email, password);
+                        const defaultSpace = { name: 'General', icon: 'ph-folder', createdAt: new Date().toISOString() };
+                        const spaceId = Date.now().toString();
+                        await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', userCredential.user.uid, 'spaces', spaceId), defaultSpace);
+                    }
+                } catch (err) {
+                    setAuthError(err.message.replace('Firebase: ', ''));
+                    setLoading(false);
+                }
+            };
+
+            const handleLogout = async () => {
+                await fbAPI.signOut(fbAPI.auth);
+                setUser(null); setSpaces([]); setLinks([]);
+            };
+
+            // Database Functions
+            const handleAddSpace = async (e) => {
                 e.preventDefault();
                 const name = e.target.spaceName.value.trim();
-                if (!name) return;
+                if (!name || !user) return;
                 
-                const newSpace = { id: Date.now().toString(), name, icon: 'ph-folder', createdAt: new Date().toISOString() };
-                setSpaces([...spaces, newSpace]);
-                setActiveSpaceId(newSpace.id);
+                const spaceId = Date.now().toString();
+                await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'spaces', spaceId), { name, icon: 'ph-folder', createdAt: new Date().toISOString() });
+                setActiveSpaceId(spaceId);
                 closeModal();
             };
 
-            const handleRenameSpace = (e) => {
+            const handleRenameSpace = async (e) => {
                 e.preventDefault();
                 const newName = e.target.spaceName.value.trim();
-                if (!newName) return;
-                
-                setSpaces(spaces.map(s => s.id === modalConfig.data.id ? { ...s, name: newName } : s));
+                if (!newName || !user) return;
+                await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'spaces', modalConfig.data.id), { name: newName }, { merge: true });
                 closeModal();
             };
 
-            const handleDeleteSpace = () => {
+            const handleDeleteSpace = async () => {
                 const spaceToDelete = modalConfig.data.id;
-                setSpaces(spaces.filter(s => s.id !== spaceToDelete));
-                setLinks(links.filter(l => l.spaceId !== spaceToDelete)); // Delete associated links
-                if (activeSpaceId === spaceToDelete) {
-                    const remaining = spaces.filter(s => s.id !== spaceToDelete);
-                    setActiveSpaceId(remaining.length > 0 ? remaining[0].id : null);
-                }
+                await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'spaces', spaceToDelete));
+                links.filter(l => l.spaceId === spaceToDelete).forEach(async (link) => {
+                    await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', link.id));
+                });
                 closeModal();
             };
 
-            const handleAddLink = (e) => {
+            const handleAddLink = async (e) => {
                 e.preventDefault();
-                if (!activeSpaceId) return;
-
-                const title = e.target.linkTitle.value.trim() || 'Untitled Link';
+                if (!activeSpaceId || !user) return;
                 let url = e.target.linkUrl.value.trim();
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                }
-                const description = e.target.linkDesc.value.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
                 
-                const newLink = {
-                    id: Date.now().toString(),
-                    spaceId: activeSpaceId,
-                    title,
-                    url,
-                    description,
-                    addedAt: new Date().toISOString()
-                };
-                
-                setLinks([newLink, ...links]);
+                const linkId = Date.now().toString();
+                await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', linkId), {
+                    spaceId: activeSpaceId, title: e.target.linkTitle.value.trim() || 'Untitled Link', 
+                    url, description: e.target.linkDesc.value.trim(), addedAt: new Date().toISOString()
+                });
                 closeModal();
             };
 
-            const handleDeleteLink = (id) => {
-                setLinks(links.filter(l => l.id !== id));
+            const handleDeleteLink = async (id) => {
+                await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', id));
                 closeModal();
             };
 
-            const openPreview = (url) => {
-                setPreviewUrl(url);
-            };
+            // UI Render Logic
+            if (loading && !user) {
+                return <div className="flex h-screen items-center justify-center relative"><i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i></div>;
+            }
 
-            const Modal = () => {
-                if (!modalConfig.isOpen) return null;
-
+            if (!user) {
                 return (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-                        <div className="glass rounded-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold">
-                                    {modalConfig.type === 'addSpace' && 'Create New Space'}
-                                    {modalConfig.type === 'renameSpace' && 'Rename Space'}
-                                    {modalConfig.type === 'deleteSpace' && 'Delete Space'}
-                                    {modalConfig.type === 'addLink' && 'Save a Link'}
-                                </h2>
-                                <button onClick={closeModal} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition">
-                                    <i className="ph ph-x text-xl"></i>
+                    <div className="flex h-screen items-center justify-center p-6 relative">
+                        <div className="glass max-w-md w-full p-8 rounded-3xl z-10 animate-[fadeIn_0.3s_ease-out]">
+                            <div className="flex justify-center mb-6">
+                                <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
+                                    <i className="ph ph-link-simple text-3xl"></i>
+                                </div>
+                            </div>
+                            <h1 className="text-2xl font-bold text-center mb-2">Welcome to LinkVault</h1>
+                            <p className="text-center opacity-80 mb-8">{authMode === 'login' ? 'Sign in to access your cloud links' : 'Create an account to start syncing'}</p>
+
+                            {authError && <div className="bg-red-500/10 text-red-500 p-3 rounded-xl mb-6 text-sm font-medium border border-red-500/20 text-center">{authError}</div>}
+
+                            <form onSubmit={handleAuth} className="flex flex-col gap-4">
+                                <div><label className="block text-sm font-medium mb-1 opacity-80">Email</label><input type="email" name="email" required className="w-full glass-input rounded-xl px-4 py-3" placeholder="you@example.com" /></div>
+                                <div><label className="block text-sm font-medium mb-1 opacity-80">Password</label><input type="password" name="password" required minLength="6" className="w-full glass-input rounded-xl px-4 py-3" placeholder="••••••••" /></div>
+                                <button type="submit" disabled={loading} className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-4 flex justify-center items-center gap-2">
+                                    {loading ? <i className="ph ph-spinner-gap animate-spin text-xl"></i> : (authMode === 'login' ? 'Sign In' : 'Create Account')}
                                 </button>
-                            </div>
-
-                            {modalConfig.type === 'addSpace' && (
-                                <form onSubmit={handleAddSpace} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 opacity-80">Space Name</label>
-                                        <input type="text" name="spaceName" autoFocus required placeholder="e.g. Political Views, Design Docs" 
-                                               className="w-full glass-input rounded-xl px-4 py-3" />
-                                    </div>
-                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Create Space</button>
-                                </form>
-                            )}
-
-                            {modalConfig.type === 'renameSpace' && (
-                                <form onSubmit={handleRenameSpace} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 opacity-80">New Space Name</label>
-                                        <input type="text" name="spaceName" defaultValue={modalConfig.data.name} autoFocus required 
-                                               className="w-full glass-input rounded-xl px-4 py-3" />
-                                    </div>
-                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Rename Space</button>
-                                </form>
-                            )}
-
-                            {modalConfig.type === 'deleteSpace' && (
-                                <div className="flex flex-col gap-4">
-                                    <p className="opacity-80">Are you sure you want to delete <strong>{modalConfig.data.name}</strong>? All links inside this space will also be deleted. This cannot be undone.</p>
-                                    <div className="flex gap-3 mt-4">
-                                        <button onClick={closeModal} className="glass-btn flex-1 py-3 rounded-xl font-medium">Cancel</button>
-                                        <button onClick={handleDeleteSpace} className="bg-red-500/80 hover:bg-red-500 text-white flex-1 py-3 rounded-xl font-medium transition backdrop-blur-md">Delete Forever</button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {modalConfig.type === 'addLink' && (
-                                <form onSubmit={handleAddLink} className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 opacity-80">URL</label>
-                                        <input type="text" name="linkUrl" autoFocus required placeholder="example.com/article" 
-                                               className="w-full glass-input rounded-xl px-4 py-3" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 opacity-80">Title</label>
-                                        <input type="text" name="linkTitle" placeholder="Title of the page" 
-                                               className="w-full glass-input rounded-xl px-4 py-3" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1 opacity-80">Notes / Description (Optional)</label>
-                                        <textarea name="linkDesc" rows="2" placeholder="Why are you saving this?" 
-                                                  className="w-full glass-input rounded-xl px-4 py-3 resize-none"></textarea>
-                                    </div>
-                                    <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Save Link</button>
-                                </form>
-                            )}
+                            </form>
+                            <p className="text-center mt-6 text-sm opacity-80">
+                                {authMode === 'login' ? "Don't have an account? " : "Already have an account? "}
+                                <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }} className="text-[var(--accent)] font-bold hover:underline">
+                                    {authMode === 'login' ? 'Sign up' : 'Log in'}
+                                </button>
+                            </p>
                         </div>
                     </div>
                 );
-            };
-
-            const PreviewWindow = () => {
-                if (!previewUrl) return null;
-                return (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-6" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-                        <div className="glass rounded-2xl w-full h-full max-w-6xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out] border border-white/20 shadow-2xl">
-                            <div className="p-3 sm:p-4 flex justify-between items-center border-b border-[var(--border-glass)] bg-[var(--bg-glass)]">
-                                <div className="flex items-center gap-3 truncate text-sm sm:text-base font-medium">
-                                    <i className="ph ph-lock-key text-[var(--accent)]"></i>
-                                    <span className="truncate opacity-80">{previewUrl}</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Open in new tab">
-                                        <i className="ph ph-arrow-square-out text-lg sm:text-xl"></i>
-                                    </a>
-                                    <button onClick={() => setPreviewUrl(null)} className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-500 transition" title="Close Preview">
-                                        <i className="ph ph-x text-lg sm:text-xl"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex-1 w-full bg-white relative">
-                                <div className="absolute inset-0 flex items-center justify-center flex-col gap-3 z-0">
-                                    <i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i>
-                                    <p className="text-gray-500 text-sm">Loading Preview...</p>
-                                    <p className="text-gray-400 text-xs px-6 text-center">Note: Some sites block embedded previews. If it fails to load, use the 'Open in new tab' button above.</p>
-                                </div>
-                                {/* The iframe is layered above the loading spinner */}
-                                <iframe src={previewUrl} className="w-full h-full absolute inset-0 z-10 border-none bg-transparent" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
+            }
 
             return (
-                <div className="flex h-screen overflow-hidden">
-                    
-                    {/* Sidebar Toggle for Mobile */}
-                    <button 
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="md:hidden fixed bottom-6 right-6 z-40 glass-btn-primary p-4 rounded-full shadow-lg"
-                    >
+                <div className="flex h-screen overflow-hidden animate-[fadeIn_0.3s_ease-out]">
+                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden fixed bottom-6 right-6 z-40 glass-btn-primary p-4 rounded-full shadow-lg">
                         <i className={`ph ${isSidebarOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
                     </button>
 
-                    {/* Sidebar: Spaces */}
-                    <aside className={`
-                        glass flex-shrink-0 border-r border-[var(--border-glass)]
-                        fixed md:relative z-30 h-full w-[280px]
-                        transition-transform duration-300 ease-in-out
-                        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                    `}>
+                    <aside className={`glass flex-shrink-0 border-r border-[var(--border-glass)] fixed md:relative z-30 h-full w-[280px] transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                         <div className="p-6 h-full flex flex-col">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_15px_var(--accent)]">
-                                    <i className="ph ph-link-simple text-2xl"></i>
-                                </div>
-                                <h1 className="text-xl font-bold tracking-tight">LinkVault</h1>
+                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_15px_var(--accent)]"><i className="ph ph-link-simple text-2xl"></i></div>
+                                <div><h1 className="text-xl font-bold tracking-tight leading-tight">LinkVault</h1><p className="text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-wider">Cloud Synced</p></div>
                             </div>
 
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Your Spaces</h2>
-                                <button onClick={() => openModal('addSpace')} className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 text-[var(--accent)] transition">
-                                    <i className="ph ph-plus text-lg"></i>
-                                </button>
+                                <button onClick={() => openModal('addSpace')} className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 text-[var(--accent)] transition"><i className="ph ph-plus text-lg"></i></button>
                             </div>
 
                             <div className="flex-1 overflow-y-auto space-y-1 -mx-2 px-2">
                                 {spaces.map(space => (
                                     <div key={space.id} 
                                         className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all ${activeSpaceId === space.id ? 'bg-[var(--accent)] text-white shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-main)]'}`}
-                                        onClick={() => { setActiveSpaceId(space.id); setIsSidebarOpen(false); }}
-                                    >
+                                        onClick={() => { setActiveSpaceId(space.id); setIsSidebarOpen(false); }}>
                                         <div className="flex items-center gap-3 truncate">
-                                            <i className={`ph ${space.icon} text-lg ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--accent)]'}`}></i>
-                                            <span className="font-medium truncate">{space.name}</span>
+                                            <i className={`ph ${space.icon} text-lg ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--accent)]'}`}></i><span className="font-medium truncate">{space.name}</span>
                                         </div>
-                                        
-                                        {/* Space Actions Dropdown triggers */}
                                         <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${activeSpaceId === space.id ? 'text-white' : 'text-[var(--text-muted)]'}`}>
                                             <button onClick={(e) => { e.stopPropagation(); openModal('renameSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-pencil-simple"></i></button>
-                                            {spaces.length > 1 && (
-                                                <button onClick={(e) => { e.stopPropagation(); openModal('deleteSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-trash"></i></button>
-                                            )}
+                                            {spaces.length > 1 && <button onClick={(e) => { e.stopPropagation(); openModal('deleteSpace', space); }} className="p-1 hover:scale-110 transition"><i className="ph ph-trash"></i></button>}
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Theme Selector */}
-                            <div className="mt-6 pt-6 border-t border-[var(--border-glass)]">
-                                <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-3">Theme</label>
-                                <div className="flex bg-black/5 dark:bg-white/5 rounded-xl p-1">
-                                    {['system', 'light', 'dark', 'dracula'].map(t => (
-                                        <button key={t} onClick={() => setTheme(t)} className={`flex-1 py-2 text-sm rounded-lg capitalize transition-all ${theme === t ? 'glass shadow-sm font-medium text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
-                                            {t === 'system' && <i className="ph ph-monitor text-lg"></i>}
-                                            {t === 'light' && <i className="ph ph-sun text-lg"></i>}
-                                            {t === 'dark' && <i className="ph ph-moon text-lg"></i>}
-                                            {t === 'dracula' && <i className="ph ph-drop text-lg"></i>}
-                                        </button>
-                                    ))}
+                            <div className="mt-6 pt-6 border-t border-[var(--border-glass)] flex flex-col gap-4">
+                                <div>
+                                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-2">Theme</label>
+                                    <div className="flex bg-black/5 dark:bg-white/5 rounded-xl p-1">
+                                        {['system', 'light', 'dark', 'dracula'].map(t => (
+                                            <button key={t} onClick={() => setTheme(t)} className={`flex-1 py-1.5 text-sm rounded-lg transition-all ${theme === t ? 'glass shadow-sm text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}>
+                                                {t === 'system' && <i className="ph ph-monitor text-lg"></i>}
+                                                {t === 'light' && <i className="ph ph-sun text-lg"></i>}
+                                                {t === 'dark' && <i className="ph ph-moon text-lg"></i>}
+                                                {t === 'dracula' && <i className="ph ph-drop text-lg"></i>}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+                                <button onClick={handleLogout} className="glass-btn w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:text-red-500 hover:border-red-500/50">
+                                    <i className="ph ph-sign-out"></i> Sign Out
+                                </button>
                             </div>
                         </div>
                     </aside>
 
-                    {/* Main Content Area */}
                     <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-                        {/* Overlay when sidebar is open on mobile */}
-                        {isSidebarOpen && (
-                            <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-20" onClick={() => setIsSidebarOpen(false)}></div>
-                        )}
+                        {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-20" onClick={() => setIsSidebarOpen(false)}></div>}
 
-                        {/* Top Header */}
                         <header className="px-6 sm:px-10 py-6 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1>
-                                <p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p>
-                            </div>
-                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center">
-                                <i className="ph ph-plus-circle text-xl"></i>
-                                Add New Link
-                            </button>
+                            <div><h1 className="text-2xl sm:text-3xl font-bold mb-1">{activeSpace?.name || 'Loading...'}</h1><p className="text-[var(--text-muted)] text-sm">{activeLinks.length} saved links</p></div>
+                            <button onClick={() => openModal('addLink')} className="glass-btn-primary px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center"><i className="ph ph-plus-circle text-xl"></i>Add New Link</button>
                         </header>
 
-                        {/* Links Grid */}
                         <div className="flex-1 overflow-y-auto p-6 sm:p-10">
                             {activeLinks.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
-                                    <div className="w-24 h-24 mb-6 rounded-full glass flex items-center justify-center">
-                                        <i className="ph ph-link-break text-4xl text-[var(--accent)]"></i>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2">No links here yet</h3>
-                                    <p className="max-w-sm">Save your first link in this space by clicking the "Add New Link" button above.</p>
+                                    <div className="w-24 h-24 mb-6 rounded-full glass flex items-center justify-center"><i className="ph ph-cloud-arrow-up text-4xl text-[var(--accent)]"></i></div>
+                                    <h3 className="text-xl font-bold mb-2">Your Cloud Vault is Empty</h3>
+                                    <p className="max-w-sm">Save your first link here. It will instantly sync to any device where you log in.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
@@ -507,33 +423,17 @@
                                         <div key={link.id} className="glass rounded-2xl p-5 flex flex-col transition-transform hover:-translate-y-1 duration-300 group">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
-                                                    <img 
-                                                        src={`https://www.google.com/s2/favicons?domain=${link.url}&sz=64`} 
-                                                        alt="favicon" 
-                                                        className="w-6 h-6 rounded"
-                                                        onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }}
-                                                    />
+                                                    <img src={`https://www.google.com/s2/favicons?domain=${link.url}&sz=64`} alt="favicon" className="w-6 h-6 rounded" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                                                     <i className="ph ph-globe text-xl text-[var(--accent)] hidden"></i>
                                                 </div>
-                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100">
-                                                    <i className="ph ph-trash text-lg"></i>
-                                                </button>
+                                                <button onClick={() => handleDeleteLink(link.id)} className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition opacity-0 group-hover:opacity-100"><i className="ph ph-trash text-lg"></i></button>
                                             </div>
-                                            
                                             <h3 className="font-bold text-lg mb-1 truncate" title={link.title}>{link.title}</h3>
                                             <p className="text-xs text-[var(--text-muted)] truncate mb-3 font-mono">{link.url.replace(/^https?:\/\//, '')}</p>
-                                            
-                                            {link.description && (
-                                                <p className="text-sm opacity-80 mb-4 line-clamp-2 flex-1">{link.description}</p>
-                                            )}
-                                            
+                                            {link.description && <p className="text-sm opacity-80 mb-4 line-clamp-2 flex-1">{link.description}</p>}
                                             <div className="mt-auto pt-4 flex gap-2">
-                                                <button onClick={() => openPreview(link.url)} className="flex-1 glass-btn py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                                                    <i className="ph ph-eye"></i> Preview
-                                                </button>
-                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] hover:bg-[var(--accent)] hover:text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">
-                                                    Visit <i className="ph ph-arrow-up-right"></i>
-                                                </a>
+                                                <button onClick={() => setPreviewUrl(link.url)} className="flex-1 glass-btn py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2"><i className="ph ph-eye"></i> Preview</button>
+                                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] hover:bg-[var(--accent)] hover:text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">Visit <i className="ph ph-arrow-up-right"></i></a>
                                             </div>
                                         </div>
                                     ))}
@@ -542,8 +442,75 @@
                         </div>
                     </main>
 
-                    <Modal />
-                    <PreviewWindow />
+                    {/* Modals */}
+                    {modalConfig.isOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+                            <div className="glass rounded-2xl p-6 w-full max-w-md animate-[fadeIn_0.2s_ease-out]">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-xl font-bold">
+                                        {modalConfig.type === 'addSpace' && 'Create New Space'}
+                                        {modalConfig.type === 'renameSpace' && 'Rename Space'}
+                                        {modalConfig.type === 'deleteSpace' && 'Delete Space'}
+                                        {modalConfig.type === 'addLink' && 'Save a Link'}
+                                    </h2>
+                                    <button onClick={closeModal} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition"><i className="ph ph-x text-xl"></i></button>
+                                </div>
+
+                                {modalConfig.type === 'addSpace' && (
+                                    <form onSubmit={handleAddSpace} className="flex flex-col gap-4">
+                                        <input type="text" name="spaceName" autoFocus required placeholder="e.g. Political Views" className="w-full glass-input rounded-xl px-4 py-3" />
+                                        <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Create Space</button>
+                                    </form>
+                                )}
+                                {modalConfig.type === 'renameSpace' && (
+                                    <form onSubmit={handleRenameSpace} className="flex flex-col gap-4">
+                                        <input type="text" name="spaceName" defaultValue={modalConfig.data.name} autoFocus required className="w-full glass-input rounded-xl px-4 py-3" />
+                                        <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Rename Space</button>
+                                    </form>
+                                )}
+                                {modalConfig.type === 'deleteSpace' && (
+                                    <div className="flex flex-col gap-4">
+                                        <p className="opacity-80">Delete <strong>{modalConfig.data.name}</strong> and all its links forever?</p>
+                                        <div className="flex gap-3 mt-4">
+                                            <button onClick={closeModal} className="glass-btn flex-1 py-3 rounded-xl font-medium">Cancel</button>
+                                            <button onClick={handleDeleteSpace} className="bg-red-500/80 hover:bg-red-500 text-white flex-1 py-3 rounded-xl font-medium transition">Delete</button>
+                                        </div>
+                                    </div>
+                                )}
+                                {modalConfig.type === 'addLink' && (
+                                    <form onSubmit={handleAddLink} className="flex flex-col gap-4">
+                                        <input type="text" name="linkUrl" autoFocus required placeholder="URL (example.com/article)" className="w-full glass-input rounded-xl px-4 py-3" />
+                                        <input type="text" name="linkTitle" placeholder="Title of the page" className="w-full glass-input rounded-xl px-4 py-3" />
+                                        <textarea name="linkDesc" rows="2" placeholder="Notes (Optional)" className="w-full glass-input rounded-xl px-4 py-3 resize-none"></textarea>
+                                        <button type="submit" className="glass-btn-primary w-full py-3 rounded-xl font-medium mt-2">Save Link to Cloud</button>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Preview iframe */}
+                    {previewUrl && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-6" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+                            <div className="glass rounded-2xl w-full h-full max-w-6xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out] border border-white/20 shadow-2xl">
+                                <div className="p-3 sm:p-4 flex justify-between items-center border-b border-[var(--border-glass)] bg-[var(--bg-glass)]">
+                                    <div className="flex items-center gap-3 truncate text-sm sm:text-base font-medium">
+                                        <i className="ph ph-lock-key text-[var(--accent)]"></i><span className="truncate opacity-80">{previewUrl}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Open in new tab"><i className="ph ph-arrow-square-out text-lg sm:text-xl"></i></a>
+                                        <button onClick={() => setPreviewUrl(null)} className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-500 transition" title="Close Preview"><i className="ph ph-x text-lg sm:text-xl"></i></button>
+                                    </div>
+                                </div>
+                                <div className="flex-1 w-full bg-white relative">
+                                    <div className="absolute inset-0 flex items-center justify-center flex-col gap-3 z-0">
+                                        <i className="ph ph-spinner-gap text-4xl animate-spin text-[var(--accent)]"></i><p className="text-gray-500 text-sm">Loading Preview...</p>
+                                    </div>
+                                    <iframe src={previewUrl} className="w-full h-full absolute inset-0 z-10 border-none bg-transparent" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
