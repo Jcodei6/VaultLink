@@ -147,7 +147,7 @@
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             top: 0; left: 0;
-            min-height: 520px;
+            min-height: 560px; /* Increased slightly for signature */
             display: flex; flex-direction: column; justify-content: center;
         }
         .front { position: relative; transform: rotateY(0deg); z-index: 2; }
@@ -166,7 +166,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        // Your exact Firebase config!
         const firebaseConfig = {
             apiKey: "AIzaSyCzLvhmEp8WWFDjEhGXiMhSQ9t5sLyScu4",
             authDomain: "vault-link-shanegwapings.firebaseapp.com",
@@ -182,7 +181,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Exposing Firebase logic securely to React
         window.FirebaseAPI = {
             auth, db,
             signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
@@ -211,7 +209,7 @@
             const [authError, setAuthError] = useState('');
             const [loading, setLoading] = useState(true);
             
-            // New password visibility states
+            // Password visibility states
             const [showLoginPassword, setShowLoginPassword] = useState(false);
             const [showRegisterPassword, setShowRegisterPassword] = useState(false);
             
@@ -293,7 +291,6 @@
                         await fbAPI.signInWithEmailAndPassword(fbAPI.auth, email, password);
                     } else {
                         const userCredential = await fbAPI.createUserWithEmailAndPassword(fbAPI.auth, email, password);
-                        // Make a default space instantly
                         const defaultSpace = { name: 'General', icon: 'ph-folder', createdAt: new Date().toISOString() };
                         const spaceId = Date.now().toString();
                         await fbAPI.setDoc(fbAPI.doc(fbAPI.db, 'users', userCredential.user.uid, 'spaces', spaceId), defaultSpace);
@@ -332,7 +329,6 @@
             const handleDeleteSpace = async () => {
                 const spaceToDelete = modalConfig.data.id;
                 await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'spaces', spaceToDelete));
-                // Cascade delete links inside
                 links.filter(l => l.spaceId === spaceToDelete).forEach(async (link) => {
                     await fbAPI.deleteDoc(fbAPI.doc(fbAPI.db, 'users', user.uid, 'links', link.id));
                 });
@@ -362,7 +358,6 @@
             // RENDER LOGIC
             // ----------------------------------------------------
 
-            // 1. Initial Loading Spinner
             if (loading && !user) {
                 return (
                     <div className="flex h-[100dvh] items-center justify-center relative">
@@ -371,16 +366,13 @@
                 );
             }
 
-            // 2. Authentication Screen (with 3D Flip & Show/Hide Password)
             if (!user) {
                 return (
                     <div className="flex h-[100dvh] items-center justify-center p-6 relative flip-container">
-                        
-                        {/* FLIPPER WRAPPER */}
                         <div className={`flipper ${authMode === 'register' ? 'flipped' : ''}`}>
                             
                             {/* FRONT SIDE: LOG IN */}
-                            <div className="front glass rounded-3xl p-8 shadow-2xl">
+                            <div className="front glass rounded-3xl p-8 shadow-2xl flex flex-col">
                                 <div className="flex justify-center mb-6">
                                     <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
                                         <i className="ph ph-link-simple text-3xl"></i>
@@ -425,10 +417,17 @@
                                         Sign up
                                     </button>
                                 </p>
+
+                                {/* Signature */}
+                                <div className="mt-auto pt-6 text-center">
+                                    <p className="text-[11px] text-[var(--text-muted)] opacity-60">
+                                        Developed by <span className="font-semibold text-[var(--accent)]">Harvy Jay Wagas</span>
+                                    </p>
+                                </div>
                             </div>
 
                             {/* BACK SIDE: REGISTER */}
-                            <div className="back glass rounded-3xl p-8 shadow-2xl">
+                            <div className="back glass rounded-3xl p-8 shadow-2xl flex flex-col">
                                 <div className="flex justify-center mb-6">
                                     <div className="w-16 h-16 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-white shadow-[0_0_20px_var(--accent)]">
                                         <i className="ph ph-link-simple text-3xl"></i>
@@ -473,6 +472,13 @@
                                         Log in
                                     </button>
                                 </p>
+
+                                {/* Signature */}
+                                <div className="mt-auto pt-6 text-center">
+                                    <p className="text-[11px] text-[var(--text-muted)] opacity-60">
+                                        Developed by <span className="font-semibold text-[var(--accent)]">Harvy Jay Wagas</span>
+                                    </p>
+                                </div>
                             </div>
 
                         </div>
@@ -534,6 +540,13 @@
                                 <button onClick={handleLogout} className="glass-btn w-full py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:text-red-500 hover:border-red-500/50 transition">
                                     <i className="ph ph-sign-out"></i> Sign Out
                                 </button>
+                                
+                                {/* Signature inside app sidebar */}
+                                <div className="text-center mt-2">
+                                    <p className="text-[10px] text-[var(--text-muted)] opacity-60">
+                                        Developed by <span className="font-semibold text-[var(--text-main)]">Harvy Jay Wagas</span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -541,7 +554,7 @@
                     <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                         {isSidebarOpen && <div className="md:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-30" onClick={() => setIsSidebarOpen(false)}></div>}
 
-                        {/* Top Header - Updated for Mobile Alignment and Burger Menu */}
+                        {/* Top Header */}
                         <header className="px-5 sm:px-10 py-5 sm:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-glass)]">
                             <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <button 
